@@ -106,7 +106,7 @@ def get_planet_position_at_tick(planet_id, tick, obs):
     dx, dy, r, is_orbiting, px, py = _planet_params_cache[planet_id]
     if is_orbiting:
         initial_angle = math.atan2(dy, dx)
-        current_angle = initial_angle + ang_vel * tick
+        current_angle = initial_angle + ang_vel * (tick - 1) if tick >= 1 else initial_angle
         pos = (
             CENTER + r * math.cos(current_angle),
             CENTER + r * math.sin(current_angle)
@@ -455,11 +455,11 @@ def agent(obs, config=None):
                     if tp.id in comet_ids and actual_arr_step >= expiry:
                         continue
                         
-                    transit = actual_arr_step - current_step
+                    transit = max(1, actual_arr_step - current_step)
                     lifetime = expiry - actual_arr_step
                     
                     # ROI score
-                    score = (tp.production * lifetime) / (fleet_size * (transit ** 1.25))
+                    score = (tp.production * lifetime) / (max(1, fleet_size) * (transit ** 1.25))
                     candidates.append((score, mp.id, tp.id, actual_angle, fleet_size, actual_arr_step))
                     
     # Sort candidates by ROI score descending
